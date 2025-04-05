@@ -36,6 +36,9 @@ class library:
     
     def allBooks(self):
         return list(self.currentLib)
+    
+    def getBook(self, index):
+        return self.currentLib[index].copy()
 
     def lengthLib(self):
         return len(self.currentLib)
@@ -43,3 +46,14 @@ class library:
     def updateStatus(self, index, state):
         self.currentLib[index].update(status= state)
         return self.save()
+    
+    def searchBook(self, status, title=None, author=None, year=None):
+        results = []
+        for book in self.currentLib:
+            if title == book["title"] or author == book["author"] or year == book["year"]:
+                if book["status"] in status:
+                    continue
+                results.append(book)
+        return results
+
+            
