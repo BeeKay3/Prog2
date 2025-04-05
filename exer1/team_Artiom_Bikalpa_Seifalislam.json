@@ -1,0 +1,19 @@
+{
+    "teamMembers": [
+        {
+            "Name": "Bikalpa Khachhibhoya",
+            "Email": "bikalpa.khachhibhoya@stud.th-deg.de",
+            "Course": "AIN-B-2"
+        },
+        {
+            "Name": "Artiom Triboi",
+            "Email": "artiom.triboi@stud.th-deg.de",
+            "Course": "AIN-B-2"
+        },
+        {
+            "Name": "Seifalislam Sebak",
+            "Email": "seifalislam.sebak@stud.th-deg.de",
+            "Course": "AIN-B-2"
+        }
+    ]
+}
