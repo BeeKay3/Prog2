@@ -1,11 +1,14 @@
 import json
 
 class library:
+    currentLib = []
+
     def init(self, name, err):
         self.name = name
         try:
             with open(name, "r") as File:
-                self.currentLib = json.load(File)
+                self.currentLib = json.load(File) 
+                print("test")
             err = None
             return True
         except FileNotFoundError:

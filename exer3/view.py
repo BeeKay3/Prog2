@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from tkinter import ttk
 
 
 
@@ -7,7 +7,7 @@ def placeholder(va=None):
     print("Placeholder used! Implement me >:(")
 
 
-def mainWindow():
+def mainWindow(library=None):
     mainw = tk.Tk()
     mainw.title("Exercise 3")
     mainw.geometry("1000x500")
@@ -33,7 +33,7 @@ def mainWindow():
     rightFrame = tk.Frame(mainw, width=1000)
     rightFrame.grid(row=0, column=1, sticky='nsew')
     rightFrame.grid_columnconfigure(0, weight=1)
-    rightFrame.grid_rowconfigure(1, weight=1)
+    rightFrame.grid_rowconfigure(2, weight=1)
 
     menuBar = tk.Menu(mainw)
     mainw.config(menu=menuBar)
@@ -60,15 +60,28 @@ def mainWindow():
     tk.Button(leftFrame, text="Add a book", width=20, command=placeholder).grid(row=13, column=0, padx=10, pady=(20, 0))
     tk.Button(leftFrame, text="Add 1 million books", width=20, command=placeholder).grid(row=14, column=0, padx=10, pady=(10, 0))
 
-    tk.Label(rightFrame, text=f"Library: xxx\nTotal number of books: xxx", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
-    lstb = tk.Listbox(rightFrame, font=("Helvetica", 14))
-    lstb.grid(row=1, column=0, padx=10, pady=10, sticky='nsew')
-    lstb.bind('<Double-1>', placeholder)
-    lstb.bind('<Button-3>', placeholder)
-    tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record right-click on it", height=2, justify='left').grid(row=2, column=0, padx=10, pady=(0, 20), sticky='w')
+    tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
+    tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record right-click on it", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
 
-    for i in range(100):
-        lstb.insert(i, f"Book {i + 1}")
+
+    tree = ttk.Treeview(rightFrame, columns=("Title", "Author", "Year", "Status"), show="headings", selectmode="browse")
+    tree.grid(row=2, column=0, padx=10, pady=(5, 25), sticky='nsew')
+
+    tree.heading("Title", text="Title")
+    tree.heading("Author", text="Author")
+    tree.heading("Year", text="Year")
+    tree.heading("Status", text="Status")
+    tree.column("Title", width=300,  stretch=True)
+    tree.column("Author", width=200)
+    tree.column("Year", width=50)
+    tree.column("Status", width=100)
+
+    tree.bind("<Double-1>", placeholder)
+    tree.bind("<Button-3>", placeholder)
+
+    for book in library.allBooks():
+        tree.insert("", "end", values=(book["title"], book["author"], book["year"], book["status"]))
+
 
     mainw.mainloop()
 
@@ -178,12 +191,12 @@ def newFileWindow():
     tk.Button(frame, text="Create", width=20, command=placeholder).pack(pady=10)
 
     mainw.mainloop()
+  
 
 
-
-mainWindow()
+#mainWindow()
 #modifyWindow(3)
 #deleteWindow()
 #addWindow()
 #fileOpenWindow()
-newFileWindow()
+#newFileWindow()
