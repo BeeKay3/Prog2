@@ -10,7 +10,7 @@
 
 import json
 import os
-import model as md
+import team_Artiom_Bikalpa_Seifalislam_model as md
 import tkinter as tk
 from tkinter import ttk
 import threading
@@ -71,7 +71,8 @@ class mainApp:
         print("yes")
         self.millionkey = True       
         self.millionButton.config(text="Add a million entries")
-        self.tableUpdate(l.allBooks())
+        l.save()
+        #self.tableUpdate(l.allBooks())
     
     def millionAdd(self):
         self.t1 = threading.Thread(target=l.addMillion)
@@ -313,7 +314,7 @@ class mainApp:
 
 l = md.library()
 err = "" 
-l.init("lib_default.json", err)
+l.init("team_Artiom_Bikalpa_Seifalislam_lib_default.json", err)
 ma = mainApp()
 ma.mainWindow(library=l)
 
