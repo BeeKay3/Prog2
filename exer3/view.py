@@ -40,7 +40,10 @@ class mainApp:
             print("insert a number") #change with er window
 
     def addRecord(self):
-        self.addWindow(1)
+        print("yes")
+
+    def modifyStatus(self):
+        self.modifyWindow(1)
 
 
 
@@ -94,7 +97,7 @@ class mainApp:
         tk.Checkbutton(leftFrame, text="Deleted", variable=self.dltd).grid(row=11, column=0, sticky='w', padx=(100, 0), pady=0)
 
         tk.Button(leftFrame, text="Search", width=20, command=self.searchShow).grid(row=12, column=0, padx=10, pady=(10, 0))
-        tk.Button(leftFrame, text="Add a book", width=20, command=self.addRecord).grid(row=13, column=0, padx=10, pady=(20, 0))
+        tk.Button(leftFrame, text="Add a book", width=20, command=self.addWindow).grid(row=13, column=0, padx=10, pady=(20, 0))
         tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.placeholder).grid(row=14, column=0, padx=10, pady=(10, 0))
 
         tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
@@ -113,20 +116,19 @@ class mainApp:
         self.tree.column("Year", width=50)
         self.tree.column("Status", width=100)
 
-        self.tree.bind("<Double-1>", lambda event: self.placeholder())
+        self.tree.bind("<Double-1>", lambda event: self.modifyStatus())
         self.tree.bind("<Button-3>", lambda event: self.deleteRecord(self.tree.index(self.tree.selection()[0])))
         self.tree.bind("<Button-3>", lambda event: self.tableUpdate(library.allBooks()), add="+")
 
         for book in library.allBooks():
             self.tree.insert("", "end", values=(book["title"], book["author"], book["year"], book["status"]))
 
-
         mainw.mainloop()
 
 
 
-    def modifyWindow(nowS):
-        mainw = tk.Tk()
+    def modifyWindow(self, nowS):
+        mainw = tk.Toplevel()
         mainw.title("Modify book status")
         mainw.geometry("250x250")
         mainw.resizable(False, False)
@@ -148,7 +150,7 @@ class mainApp:
 
 
     def deleteWindow():
-        mainw = tk.Tk()
+        mainw = tk.Toplevel()
         mainw.title("Delete book")
         mainw.geometry("350x150")
         mainw.resizable(False, False)
@@ -163,8 +165,8 @@ class mainApp:
         mainw.mainloop()
 
 
-    def addWindow(self, activeStat):
-        mainw = tk.Tk()
+    def addWindow(self):
+        mainw = tk.Toplevel()
         mainw.title("Exercise 3")
         mainw.geometry("300x400")
         mainw.resizable(False, False)
@@ -172,8 +174,8 @@ class mainApp:
         #-------------------- Variables --------------------
         self.titl = tk.StringVar()
         self.auth = tk.StringVar()
-        self.year = tk.IntVar()
-        self.stat = tk.IntVar()
+        self.year = tk.IntVar(value=2025)
+        self.statr = tk.StringVar(value="available")
 
         #-------------------- Window content --------------------
         leftFrame = tk.Frame(mainw, width=200)
@@ -188,20 +190,19 @@ class mainApp:
         tk.Spinbox(leftFrame, from_=0, to=2025, textvariable=self.year, justify='center').pack(pady=5)
 
         tk.Label(leftFrame, text="Status:").pack(anchor='center', pady=5)
-        tk.Radiobutton(leftFrame, text="Available", variable=self.stat, value=1).pack(anchor='w', padx=(100, 0))
-        tk.Radiobutton(leftFrame, text="Lend out", variable=self.stat, value=2).pack(anchor='w', padx=(100, 0))
-        tk.Radiobutton(leftFrame, text="Missing", variable=self.stat, value=3).pack(anchor='w', padx=(100, 0))
-        tk.Radiobutton(leftFrame, text="Deleted", variable=self.stat, value=4).pack(anchor='w', padx=(100, 0))
+        
+        tk.Radiobutton(leftFrame, text="Available", variable=self.statr, value="available").pack(anchor='w', padx=(100, 0))
+        tk.Radiobutton(leftFrame, text="Lend out", variable=self.statr, value="lend out").pack(anchor='w', padx=(100, 0))
+        tk.Radiobutton(leftFrame, text="Missing", variable=self.statr, value="missing").pack(anchor='w', padx=(100, 0))
+        tk.Radiobutton(leftFrame, text="Deleted", variable=self.statr, value="deleted").pack(anchor='w', padx=(100, 0))
 
-        stat = activeStat
-
-        tk.Button(leftFrame, text="Add a book", width=20, command=self.placeholder).pack(pady=(20, 0))
+        tk.Button(leftFrame, text="Add the book", width=20, command=self.addRecord).pack(pady=(20, 0))
 
         mainw.mainloop()
 
 
     def fileOpenWindow(self):
-        mainw = tk.Tk()
+        mainw = tk.Toplevel()
         mainw.title("Open a library file")
         mainw.geometry("300x300")
         mainw.resizable(False, False)
@@ -218,7 +219,7 @@ class mainApp:
 
 
     def newFileWindow(self):
-        mainw = tk.Tk()
+        mainw = tk.Toplevel()
         mainw.title("Create a new library file")
         mainw.geometry("400x150")
         mainw.resizable(False, False)
@@ -242,5 +243,5 @@ l = md.library()
 err = ""
 l.init("lib_default.json", err)
 ma = mainApp()
-ma.fileOpenWindow()
 ma.mainWindow(library=l)
+
