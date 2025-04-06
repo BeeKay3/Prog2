@@ -1,4 +1,4 @@
-# --------------------   Developers   --------------------
+# -------------------   Developers   --------------------
 
 # Artiom Triboi        - artiom.triboi@stud.th-deg.de
 # Bikalpa Khachhibhoya - bikalpa.khachhibhoya@stud.th-deg.de
@@ -13,6 +13,7 @@ import os
 import model as md
 import tkinter as tk
 from tkinter import ttk
+import threading
 
 
 
@@ -21,6 +22,7 @@ class mainApp:
     #------------------------------ Controller functions ------------------------------
 
     def tableUpdate(self, library=None):
+        self.nameLabel.config(text=f"Library:     {l.name}\nNumber of books:     {l.lengthLib()}")
         for item in self.tree.get_children():
             self.tree.delete(item)
         for book in library:
@@ -63,8 +65,27 @@ class mainApp:
         l.updateStatus(selectedRow, newStatus.get())
         self.tableUpdate(l.allBooks())
 
+    def millionCheck(self):
+        while self.t1.is_alive():
+           pass
+        print("yes")
+        self.millionkey = True       
+        self.millionButton.config(text="Add a million entries")
+        self.tableUpdate(l.allBooks())
+    
     def millionAdd(self):
-        print()
+        self.t1 = threading.Thread(target=l.addMillion)
+        self.t2 = threading.Thread(target=self.millionCheck)
+        if self.millionkey:
+            self.millionkey = False
+            self.millionButton.config(text="Cancel")
+            self.t1.start()
+            self.t2.start()
+        else:
+            l.setFlag(True)
+            self.millionkey = True
+            self.millionButton.config(text="Add a million entries")
+            
 
     def fileOpen(self, fileName):
         l.init(fileName, err)
@@ -135,7 +156,9 @@ class mainApp:
 
         tk.Button(leftFrame, text="Search", width=20, command=self.searchShow).grid(row=12, column=0, padx=10, pady=(10, 0))
         tk.Button(leftFrame, text="Add a book", width=20, command=self.addWindow).grid(row=13, column=0, padx=10, pady=(20, 0))
-        tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd).grid(row=14, column=0, padx=10, pady=(10, 0))
+        self.millionkey = True
+        self.millionButton = tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd)
+        self.millionButton.grid(row=14, column=0, padx=10, pady=(10, 0))
 
         self.nameLabel = tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left')
         self.nameLabel.grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')

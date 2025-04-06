@@ -1,4 +1,6 @@
 import json
+import random
+import string
 
 class library:
     currentLib = []
@@ -73,7 +75,7 @@ class library:
         self.millionFlag = False
         tempLib = []
         states = ("available", "loan", "missing", "deleted")
-        for x in range(1000000):
+        for x in range(50000):
             titleLength = random.randrange(5,16)
             authorLength = random.randrange(5,11)
             title = "".join(random.choice(string.ascii_letters) for i in range(titleLength))
@@ -82,8 +84,9 @@ class library:
             status = states[random.randrange(0,4)]
             tempLib.append({"title": title, "author": author, "year": year, "status": status})
             if self.millionFlag:
-                return
+                return False
         self.currentLib.extend(tempLib)
+        return True
 
     def setFlag(self, val=True):
         self.millionFlag = val        
