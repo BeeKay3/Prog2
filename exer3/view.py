@@ -1,4 +1,15 @@
+# --------------------   Developers   --------------------
+
+# Artiom Triboi        - artiom.triboi@stud.th-deg.de
+# Bikalpa Khachhibhoya - bikalpa.khachhibhoya@stud.th-deg.de
+# Seifalislam Sebak    - seifalislam.sebak@stud.th-deg.de
+
+
+
+# --------------------   Modules   --------------------
+
 import json
+import os
 import model as md
 import tkinter as tk
 from tkinter import ttk
@@ -7,6 +18,7 @@ from tkinter import ttk
 
 class mainApp:
 
+    #------------------------------ Controller functions ------------------------------
 
     def tableUpdate(self, library=None):
         for item in self.tree.get_children():
@@ -54,7 +66,23 @@ class mainApp:
     def millionAdd(self):
         print()
 
+    def fileOpen(self, fileName):
+        l.init(fileName, err)
+        self.name = fileName
+        self.libl = l.lengthLib()
+        self.tableUpdate(l.allBooks())
+        self.nameLabel.config(text=f"Library:     {l.name}\nNumber of books:     {l.lengthLib()}")
 
+    def newFile(self, fileName):
+        l.init(f"{fileName}.json", err)
+        self.name = l.name
+        self.libl = l.lengthLib()
+        self.tableUpdate(l.allBooks())
+        self.nameLabel.config(text=f"Library:     {l.name}\nNumber of books:     {l.lengthLib()}")
+
+
+
+    #------------------------------ View functions ------------------------------
 
     def mainWindow(self, library=None):
         mainw = tk.Tk()
@@ -87,8 +115,8 @@ class mainApp:
         menuBar = tk.Menu(mainw)
         mainw.config(menu=menuBar)
         fileMenu = tk.Menu(menuBar, tearoff=0)
-        fileMenu.add_command(label="Open existing library", command=self.placeholder)
-        fileMenu.add_command(label="Create new library", command=self.placeholder)
+        fileMenu.add_command(label="Open existing library", command=self.fileOpenWindow)
+        fileMenu.add_command(label="Create new library", command=self.newFileWindow)
         menuBar.add_cascade(label="File", menu=fileMenu)
 
         tk.Label(leftFrame, text="Fields for searching a book:").grid(row=0, column=0, padx=10, pady=(25, 0))
@@ -109,11 +137,15 @@ class mainApp:
         tk.Button(leftFrame, text="Add a book", width=20, command=self.addWindow).grid(row=13, column=0, padx=10, pady=(20, 0))
         tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd).grid(row=14, column=0, padx=10, pady=(10, 0))
 
-        tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
+        self.nameLabel = tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left')
+        self.nameLabel.grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
         tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record select it and right-click", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
 
 
         self.tree = ttk.Treeview(rightFrame, columns=("Title", "Author", "Year", "Status"), show="headings", selectmode="browse")
+        vscrollbar = ttk.Scrollbar(rightFrame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=vscrollbar.set)
+        vscrollbar.grid(row=2, column=0, padx=(0, 10), pady=(5, 25), sticky='nse')
         self.tree.grid(row=2, column=0, padx=10, pady=(5, 25), sticky='nsew')
 
         self.tree.heading("Title", text="Title")
@@ -222,7 +254,11 @@ class mainApp:
         tk.Label(frame, text="Double-click the library file you want to open:").pack(pady=(20, 10))
         lstb = tk.Listbox(frame)
         lstb.pack(fill='both', expand=True, padx=20, pady=(0, 20))
-        lstb.bind('<Double-1>', self.placeholder)
+        lstb.bind('<Double-1>', lambda event: [self.fileOpen(lstb.get(lstb.curselection())), mainw.destroy()])
+
+        for file in os.listdir("."):
+            if file.endswith(".json"):
+                lstb.insert('end', file)
 
         mainw.mainloop()
 
@@ -236,9 +272,11 @@ class mainApp:
         frame = tk.Frame(mainw)
         frame.pack(fill='both', expand=True)
 
+        fileName = tk.StringVar()
+
         tk.Label(frame, text="Enter the name of the new library file (no extension needed):").pack(pady=(20, 10))
-        tk.Entry(frame, width=40, justify='center').pack(pady=5)
-        tk.Button(frame, text="Create", width=20, command=self.placeholder).pack(pady=10)
+        tk.Entry(frame, width=40, textvariable=fileName, justify='center').pack(pady=5)
+        tk.Button(frame, text="Create", width=20, command=lambda: [self.newFile(fileName.get()), mainw.destroy()]).pack(pady=10)
 
         mainw.mainloop()
 
@@ -249,7 +287,7 @@ class mainApp:
 #------------------------------ Controller part ------------------------------
 
 l = md.library()
-err = ""
+err = "" 
 l.init("lib_default.json", err)
 ma = mainApp()
 ma.mainWindow(library=l)
