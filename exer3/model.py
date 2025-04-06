@@ -8,7 +8,6 @@ class library:
         try:
             with open(name, "r") as File:
                 self.currentLib = json.load(File) 
-                print("test")
             err = None
             return True
         except FileNotFoundError:

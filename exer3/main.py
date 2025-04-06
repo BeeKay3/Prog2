@@ -4,9 +4,9 @@ import json
 
 l = md.library()
 err = ""
-l.init("testLibrary.json", err)
+l.init("lib_default.json", err)
 
-ui.mainWindow(library=l)
+mainApp = ui.mainWindow(library=l)
 
 #print(l.addBook("asdfgh", "qwertyg", 1234, "loan"))
 #print(l.deleteBook(1))

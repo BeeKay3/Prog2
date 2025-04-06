@@ -6,6 +6,13 @@ from tkinter import ttk
 def placeholder(va=None):
     print("Placeholder used! Implement me >:(")
 
+def deleteRecord(deleteId, event):
+    
+    if deleteId != None:
+        print("Selected item:", deleteId)
+    else:
+        print("No item selected!")
+
 
 def mainWindow(library=None):
     mainw = tk.Tk()
@@ -61,7 +68,7 @@ def mainWindow(library=None):
     tk.Button(leftFrame, text="Add 1 million books", width=20, command=placeholder).grid(row=14, column=0, padx=10, pady=(10, 0))
 
     tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
-    tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record right-click on it", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
+    tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record select it and right-click", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
 
 
     tree = ttk.Treeview(rightFrame, columns=("Title", "Author", "Year", "Status"), show="headings", selectmode="browse")
@@ -77,7 +84,7 @@ def mainWindow(library=None):
     tree.column("Status", width=100)
 
     tree.bind("<Double-1>", placeholder)
-    tree.bind("<Button-3>", placeholder)
+    tree.bind("<Button-3>", lambda event: deleteRecord(tree.index(tree.selection()[0]), event))
 
     for book in library.allBooks():
         tree.insert("", "end", values=(book["title"], book["author"], book["year"], book["status"]))
@@ -191,12 +198,3 @@ def newFileWindow():
     tk.Button(frame, text="Create", width=20, command=placeholder).pack(pady=10)
 
     mainw.mainloop()
-  
-
-
-#mainWindow()
-#modifyWindow(3)
-#deleteWindow()
-#addWindow()
-#fileOpenWindow()
-#newFileWindow()
