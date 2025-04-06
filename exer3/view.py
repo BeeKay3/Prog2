@@ -37,13 +37,20 @@ class mainApp:
         try:
             self.tableUpdate(l.searchBook(status, self.titl.get(), self.auth.get(), self.year.get()))
         except:
-            print("insert a number") #change with er window
+            self.year.set(0)
+            self.tableUpdate(l.searchBook(status, self.titl.get(), self.auth.get(), self.year.get()))
+
 
     def addRecord(self):
-        print("yes")
+        l.addBook(self.titla.get(), self.autha.get(), self.yeara.get(), self.statr.get())
+        self.tableUpdate(l.allBooks())
+
 
     def modifyStatus(self):
         self.modifyWindow(1)
+
+    def millionAdd(self):
+        print()
 
 
 
@@ -98,7 +105,7 @@ class mainApp:
 
         tk.Button(leftFrame, text="Search", width=20, command=self.searchShow).grid(row=12, column=0, padx=10, pady=(10, 0))
         tk.Button(leftFrame, text="Add a book", width=20, command=self.addWindow).grid(row=13, column=0, padx=10, pady=(20, 0))
-        tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.placeholder).grid(row=14, column=0, padx=10, pady=(10, 0))
+        tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd()).grid(row=14, column=0, padx=10, pady=(10, 0))
 
         tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
         tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record select it and right-click", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
@@ -172,9 +179,9 @@ class mainApp:
         mainw.resizable(False, False)
 
         #-------------------- Variables --------------------
-        self.titl = tk.StringVar()
-        self.auth = tk.StringVar()
-        self.year = tk.IntVar(value=2025)
+        self.titla = tk.StringVar()
+        self.autha = tk.StringVar()
+        self.yeara = tk.IntVar(value=2025)
         self.statr = tk.StringVar(value="available")
 
         #-------------------- Window content --------------------
@@ -183,11 +190,11 @@ class mainApp:
 
         tk.Label(leftFrame, text="Insert the data of the new book:").pack(pady=(10, 5))
         tk.Label(leftFrame, text="Title:").pack(anchor='center')
-        tk.Entry(leftFrame, textvariable=self.titl, width=40, justify='center').pack(pady=5)
+        tk.Entry(leftFrame, textvariable=self.titla, width=40, justify='center').pack(pady=5)
         tk.Label(leftFrame, text="Author:").pack(anchor='center')
-        tk.Entry(leftFrame, textvariable=self.auth, width=40, justify='center').pack(pady=5)
+        tk.Entry(leftFrame, textvariable=self.autha, width=40, justify='center').pack(pady=5)
         tk.Label(leftFrame, text="Year:").pack(anchor='center')
-        tk.Spinbox(leftFrame, from_=0, to=2025, textvariable=self.year, justify='center').pack(pady=5)
+        tk.Spinbox(leftFrame, from_=0, to=2025, textvariable=self.yeara, justify='center').pack(pady=5)
 
         tk.Label(leftFrame, text="Status:").pack(anchor='center', pady=5)
         
@@ -196,7 +203,7 @@ class mainApp:
         tk.Radiobutton(leftFrame, text="Missing", variable=self.statr, value="missing").pack(anchor='w', padx=(100, 0))
         tk.Radiobutton(leftFrame, text="Deleted", variable=self.statr, value="deleted").pack(anchor='w', padx=(100, 0))
 
-        tk.Button(leftFrame, text="Add the book", width=20, command=self.addRecord).pack(pady=(20, 0))
+        tk.Button(leftFrame, text="Add the book", width=20, command=lambda: [self.addRecord(), mainw.destroy()]).pack(pady=(20, 0))
 
         mainw.mainloop()
 

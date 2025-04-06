@@ -51,11 +51,6 @@ class library:
     
     def searchBook(self, status, title=None, author=None, year=None):
         results = []
-        '''for book in self.currentLib:
-            if title.lower() in book["title"].lower() or author.lower() in book["author"].lower() or year == book["year"]:
-                if book["status"] in status:
-                    continue
-                results.append(book)'''
         for book in self.currentLib:
             result = True
             if title.lower != "" and not title.lower() in book["title"].lower():
