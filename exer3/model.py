@@ -74,4 +74,21 @@ class library:
                 results.append(book)
         return results
 
-            
+    def addMillion(self):
+        self.millionFlag = False
+        tempLib = []
+        states = ("available", "loan", "missing", "deleted")
+        for x in range(1000000):
+            titleLength = random.randrange(5,16)
+            authorLength = random.randrange(5,11)
+            title = "".join(random.choice(string.ascii_letters) for i in range(titleLength))
+            author = "".join(random.choice(string.ascii_letters) for i in range(authorLength))
+            year = str(random.randrange(1800, 2026))
+            status = states[random.randrange(0,4)]
+            tempLib.append({"title": title, "author": author, "year": year, "status": status})
+            if self.millionFlag:
+                return
+        self.currentLib.extend(tempLib)
+
+    def setFlag(self, val=True):
+        self.millionFlag = val        
