@@ -22,11 +22,18 @@ class mainApp:
     #------------------------------ Controller functions ------------------------------
 
     def tableUpdate(self, library=None):
+        self.stopCode = False
         self.nameLabel.config(text=f"Library:     {l.name}\nNumber of books:     {l.lengthLib()}")
         for item in self.tree.get_children():
             self.tree.delete(item)
         for i, book in enumerate(library, start=1):
-            self.tree.insert("", "end", values=(i, book["title"], book["author"], book["year"], book["status"]))
+            if self.stopCode == False:
+                self.tree.insert("", "end", values=(i, book["title"], book["author"], book["year"], book["status"]))
+            else:
+                break
+
+    def stopDisplay(self):
+        self.stopCode=True
 
     def placeholder(va=None):
         print("Placeholder used! Implement me >:(")
@@ -109,8 +116,8 @@ class mainApp:
     def mainWindow(self, library=None):
         mainw = tk.Tk()
         mainw.title("Exercise 3")
-        mainw.geometry("1000x500")
-        mainw.minsize(width=1000, height=500)
+        mainw.geometry("1200x600")
+        mainw.minsize(width=1200, height=600)
         mainw.grid_columnconfigure(1, weight=1)
         mainw.grid_rowconfigure(0, weight=1)
 
@@ -160,6 +167,7 @@ class mainApp:
         self.millionkey = True
         self.millionButton = tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd)
         self.millionButton.grid(row=14, column=0, padx=10, pady=(10, 0))
+        tk.Button(leftFrame, text="Stop Showing", width=20, command=self.stopDisplay).grid(row=15, column=0, padx=10, pady=(20, 0))
 
         self.nameLabel = tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left')
         self.nameLabel.grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
