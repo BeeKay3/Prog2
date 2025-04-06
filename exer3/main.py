@@ -7,6 +7,8 @@ err = ""
 l.init("lib_default.json", err)
 
 mainApp = ui.mainWindow(library=l)
+l.updateStatus(mainApp.deleteRecord(), "deleted")
+
 
 #print(l.addBook("asdfgh", "qwertyg", 1234, "loan"))
 #print(l.deleteBook(1))
