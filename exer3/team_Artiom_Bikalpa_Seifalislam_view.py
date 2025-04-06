@@ -75,7 +75,6 @@ class mainApp:
     def millionCheck(self):
         while self.t1.is_alive():
            pass
-        print("yes")
         self.millionkey = True       
         self.millionButton.config(text="Add a million entries")
         l.save()
