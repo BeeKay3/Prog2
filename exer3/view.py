@@ -25,8 +25,8 @@ class mainApp:
         self.nameLabel.config(text=f"Library:     {l.name}\nNumber of books:     {l.lengthLib()}")
         for item in self.tree.get_children():
             self.tree.delete(item)
-        for book in library:
-            self.tree.insert("", "end", values=(book["title"], book["author"], book["year"], book["status"]))
+        for i, book in enumerate(library, start=1):
+            self.tree.insert("", "end", values=(i, book["title"], book["author"], book["year"], book["status"]))
 
     def placeholder(va=None):
         print("Placeholder used! Implement me >:(")
@@ -165,16 +165,18 @@ class mainApp:
         tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record select it and right-click", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
 
 
-        self.tree = ttk.Treeview(rightFrame, columns=("Title", "Author", "Year", "Status"), show="headings", selectmode="browse")
+        self.tree = ttk.Treeview(rightFrame, columns=("Number", "Title", "Author", "Year", "Status"), show="headings", selectmode="browse")
         vscrollbar = ttk.Scrollbar(rightFrame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=vscrollbar.set)
         vscrollbar.grid(row=2, column=0, padx=(0, 10), pady=(5, 25), sticky='nse')
         self.tree.grid(row=2, column=0, padx=10, pady=(5, 25), sticky='nsew')
 
+        self.tree.heading("Number", text="Number")
         self.tree.heading("Title", text="Title")
         self.tree.heading("Author", text="Author")
         self.tree.heading("Year", text="Year")
         self.tree.heading("Status", text="Status")
+        self.tree.column("Number", width=50)
         self.tree.column("Title", width=300,  stretch=True)
         self.tree.column("Author", width=200)
         self.tree.column("Year", width=50)
@@ -183,8 +185,8 @@ class mainApp:
         self.tree.bind("<Double-1>", lambda event: self.modifyWindow(self.tree.index(self.tree.selection()[0])))
         self.tree.bind("<Button-3>", lambda event: self.deleteWindow(self.tree.index(self.tree.selection()[0])))
 
-        for book in library.allBooks():
-            self.tree.insert("", "end", values=(book["title"], book["author"], book["year"], book["status"]))
+        for i, book in enumerate(library.allBooks(), start=1):
+            self.tree.insert("", "end", values=(i, book["title"], book["author"], book["year"], book["status"]))
 
         mainw.mainloop()
 

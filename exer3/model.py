@@ -75,7 +75,7 @@ class library:
         self.millionFlag = False
         tempLib = []
         states = ("available", "loan", "missing", "deleted")
-        for x in range(50000):
+        for x in range(10000):
             titleLength = random.randrange(5,16)
             authorLength = random.randrange(5,11)
             title = "".join(random.choice(string.ascii_letters) for i in range(titleLength))
