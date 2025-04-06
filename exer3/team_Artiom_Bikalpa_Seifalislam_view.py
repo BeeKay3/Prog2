@@ -72,7 +72,7 @@ class mainApp:
         self.millionkey = True       
         self.millionButton.config(text="Add a million entries")
         l.save()
-        #self.tableUpdate(l.allBooks())
+        self.tableUpdate(l.allBooks())
     
     def millionAdd(self):
         self.t1 = threading.Thread(target=l.addMillion)
