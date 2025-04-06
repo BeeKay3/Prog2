@@ -57,12 +57,12 @@
         "title": "You Don't Know JS",
         "author": "Kyle Simpson",
         "year": 2014,
-        "status": "deleted"
+        "status": "available"
     },
     {
         "title": "YES",
         "author": "FINALLY",
         "year": 2007,
-        "status": "lend out"
+        "status": "available"
     }
 ]

@@ -22,6 +22,7 @@ class mainApp:
             l.updateStatus(deleteId, "deleted")
         else:
             print("No item selected!")
+        self.tableUpdate(l.allBooks())
 
     def searchShow(self):
         status = []
@@ -46,8 +47,9 @@ class mainApp:
         self.tableUpdate(l.allBooks())
 
 
-    def modifyStatus(self):
-        self.modifyWindow(1)
+    def modifyStatus(self, selectedRow, newStatus):
+        l.updateStatus(selectedRow, newStatus.get())
+        self.tableUpdate(l.allBooks())
 
     def millionAdd(self):
         print()
@@ -105,7 +107,7 @@ class mainApp:
 
         tk.Button(leftFrame, text="Search", width=20, command=self.searchShow).grid(row=12, column=0, padx=10, pady=(10, 0))
         tk.Button(leftFrame, text="Add a book", width=20, command=self.addWindow).grid(row=13, column=0, padx=10, pady=(20, 0))
-        tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd()).grid(row=14, column=0, padx=10, pady=(10, 0))
+        tk.Button(leftFrame, text="Add 1 million books", width=20, command=self.millionAdd).grid(row=14, column=0, padx=10, pady=(10, 0))
 
         tk.Label(rightFrame, text=f"Library:     {library.name}\nNumber of books:     {library.lengthLib()}", font=("Helvetica", 12), height=2, justify='left').grid(row=0, column=0, padx=10, pady=(20, 0), sticky='w')
         tk.Label(rightFrame, text=f"To modify a record double-click on it\nTo delete a record select it and right-click", height=2, justify='left').grid(row=1, column=0, padx=10, pady=10, sticky='w')
@@ -123,9 +125,8 @@ class mainApp:
         self.tree.column("Year", width=50)
         self.tree.column("Status", width=100)
 
-        self.tree.bind("<Double-1>", lambda event: self.modifyStatus())
-        self.tree.bind("<Button-3>", lambda event: self.deleteRecord(self.tree.index(self.tree.selection()[0])))
-        self.tree.bind("<Button-3>", lambda event: self.tableUpdate(library.allBooks()), add="+")
+        self.tree.bind("<Double-1>", lambda event: self.modifyWindow(self.tree.index(self.tree.selection()[0])))
+        self.tree.bind("<Button-3>", lambda event: self.deleteWindow(self.tree.index(self.tree.selection()[0])))
 
         for book in library.allBooks():
             self.tree.insert("", "end", values=(book["title"], book["author"], book["year"], book["status"]))
@@ -134,7 +135,7 @@ class mainApp:
 
 
 
-    def modifyWindow(self, nowS):
+    def modifyWindow(self, selectedRow):
         mainw = tk.Toplevel()
         mainw.title("Modify book status")
         mainw.geometry("250x250")
@@ -143,20 +144,21 @@ class mainApp:
         frame = tk.Frame(mainw)
         frame.pack(fill='both')
 
-        bookStatus = tk.IntVar()
-        bookStatus.set(nowS)
+        
+        bookStatus = tk.StringVar()
+        bookStatus.set(l.allBooks()[selectedRow]["status"])
 
         tk.Label(frame, text="Select the new status:").pack(pady=(30, 10))
-        tk.Radiobutton(frame, text="Available", variable=bookStatus, value=1).pack(anchor='w', padx=(100, 0))
-        tk.Radiobutton(frame, text="Lend out", variable=bookStatus, value=2).pack(anchor='w', padx=(100, 0))
-        tk.Radiobutton(frame, text="Missing", variable=bookStatus, value=3).pack(anchor='w', padx=(100, 0))
-        tk.Radiobutton(frame, text="Deleted", variable=bookStatus, value=4).pack(anchor='w', padx=(100, 0))
-        tk.Button(frame, text="Save status change", width=20, command=self.placeholder).pack(pady=10)
+        tk.Radiobutton(frame, text="Available", variable=bookStatus, value="available").pack(anchor='w', padx=(100, 0))
+        tk.Radiobutton(frame, text="Lend out", variable=bookStatus, value="lend out").pack(anchor='w', padx=(100, 0))
+        tk.Radiobutton(frame, text="Missing", variable=bookStatus, value="missing").pack(anchor='w', padx=(100, 0))
+        tk.Radiobutton(frame, text="Deleted", variable=bookStatus, value="deleted").pack(anchor='w', padx=(100, 0))
+        tk.Button(frame, text="Save status change", width=20, command=lambda: [self.modifyStatus(selectedRow, bookStatus), mainw.destroy()]).pack(pady=10)
 
         mainw.mainloop()
 
 
-    def deleteWindow():
+    def deleteWindow(self, deleteId):
         mainw = tk.Toplevel()
         mainw.title("Delete book")
         mainw.geometry("350x150")
@@ -166,8 +168,8 @@ class mainApp:
         frame.pack(fill='both')
 
         tk.Label(frame, text="Are you sure you want to delete this book?").pack(pady=(30, 10))
-        tk.Button(frame, text="Yes", width=15, command=self.placeholder).pack(side='left', padx=30, pady=10)
-        tk.Button(frame, text="No", width=15, command=self.placeholder).pack(side='right', padx=30, pady=10)
+        tk.Button(frame, text="Yes", width=15, command=lambda: [self.deleteRecord(deleteId), mainw.destroy()]).pack(side='left', padx=30, pady=10)
+        tk.Button(frame, text="No", width=15, command=mainw.destroy).pack(side='right', padx=30, pady=10)
 
         mainw.mainloop()
 
