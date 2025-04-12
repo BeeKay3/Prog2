@@ -57,6 +57,10 @@ class libraryController:
     def getIndex(self, book):
         return self.database.getIndex(book)
     
+    def getIndex(self, title, author, year, status):
+        book = {"title": title, "author": author, "year": str(year), "status": status}
+        return self.database.getIndex(book)
+    
     def addBook(self, title, author, year, status):
         if title == "" or author == "" or year == "":
             return "field cannot be empty"
@@ -71,8 +75,8 @@ class libraryController:
     def addMillion(self):
         self.millionFlag = False
         self.tempLib = []
-        states = ("available", "loan", "missing", "deleted")
-        for x in range(500000):
+        states = ("available", "lend out", "missing", "deleted")
+        for x in range(300000):
             titleLength = random.randrange(5,16)
             authorLength = random.randrange(5,11)
             title = "".join(random.choice(string.ascii_letters) for i in range(titleLength))

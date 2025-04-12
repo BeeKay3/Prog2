@@ -15,9 +15,8 @@ class window(tk.Tk):
         self.resizable(False, False)
 
 class childWindow(tk.Toplevel):
-
     def __init__(self, parent, title, resolution):
-        super().__init__()
+        super().__init__(takefocus=True)
         self.title(title)
         self.geometry(resolution)
         self.resizable(False, False)
@@ -151,8 +150,8 @@ class libraryDetails(ttk.Frame):
         self.books.pack(side=tk.LEFT, anchor=tk.NW, pady=10, expand=True, fill=tk.BOTH)
     
     def updateTableSearch(self):
-        for book in self.control.getSearchedLibrary():
-            self.books.insert('', tk.END, text='', values=(self.control.getIndex(book)+1, book["title"], book["author"], book["year"], book["status"]))
+        for index, book in enumerate(self.control.getSearchedLibrary()):
+            self.books.insert('', tk.END, text='', values=(index+1, book["title"], book["author"], book["year"], book["status"]))
             
     
     def clearTable(self):
@@ -165,10 +164,14 @@ class libraryDetails(ttk.Frame):
         root.grab_set()
         front = changeStatusMenu(root, self.control)
         front.pack(padx=10, pady=10)
+        val = self.books.item(entry)["values"]
+        index = self.control.getIndex(val[1], val[2], val[3], val[4])
         root.wait_window()
-        self.control.updateBookStatus(self.books.item(entry)["values"][0]-1, front.getValue())
-        self.clearTable()
-        self.updateTable()
+        newStatus = front.getValue()
+        if newStatus != "":
+            self.control.updateBookStatus(index, newStatus)
+            self.clearTable()
+            self.updateTable()
         
     def deleteConfirm(self, event):
         if self.control.getLibraryLength() == 0:
@@ -177,7 +180,9 @@ class libraryDetails(ttk.Frame):
             value = tk.messagebox.askyesno(title='confirmation', message='Are you sure that you want to delete this book?')
             if value:
                 entry = self.books.selection()[0]
-                self.control.deleteBook(self.books.item(entry)["values"][0]-1)
+                val = self.books.item(entry)["values"]
+                index = self.control.getIndex(val[1], val[2], val[3], val[4])
+                self.control.deleteBook(index)
                 self.clearTable()
                 self.updateTable()
 
@@ -291,7 +296,7 @@ class mainView:
         
         Menubar = tk.Menu(self.root)
         self.root.config(menu=Menubar)
-        fileMenu = tk.Menu(Menubar)
+        fileMenu = tk.Menu(Menubar, tearoff=0)
         fileMenu.add_command(label='Open Existing Library', command=self.openFile)
         fileMenu.add_command(label='Open a New Library', command=self.newFile)
         Menubar.add_cascade(label='File', menu=fileMenu)
