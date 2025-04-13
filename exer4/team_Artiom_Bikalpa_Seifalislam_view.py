@@ -119,7 +119,7 @@ class mainMenu(ttk.Frame):
         self.table.updateTableSearch()
 
     def ocrSearch(self):
-        filetype = [('Image files', '*.png;*.jpg;*.jpeg')]
+        filetype = [('Image files', '*.png'), ('Image files', '*.jpg'), ('Image files', '*.jpeg')]
         self.filename = filedialog.askopenfilename(title='Open Image File', initialdir='.', filetypes=filetype)
         if self.filename == () or self.filename == '':
             tk.messagebox.showerror(title="Error", message="File not selected")
