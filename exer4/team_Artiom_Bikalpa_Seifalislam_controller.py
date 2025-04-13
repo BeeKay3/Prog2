@@ -1,4 +1,11 @@
-import model
+# -------------------   Developers   --------------------
+
+# Artiom Triboi        - artiom.triboi@stud.th-deg.de
+# Bikalpa Khachhibhoya - bikalpa.khachhibhoya@stud.th-deg.de
+# Seifalislam Sebak    - seifalislam.sebak@stud.th-deg.de
+
+
+import team_Artiom_Bikalpa_Seifalislam_model as model
 import random
 import string
 
@@ -50,6 +57,15 @@ class libraryController:
 
             if result == True:
                 self.searchResults.append(book)
+
+    def ocrSearchBook(self, recognizedText):
+        self.searchResults = []
+        for book in self.getLibrary():
+            result = True
+            if recognizedText.lower != "" and not recognizedText.lower() in book["title"].lower() and not recognizedText.lower() in book["author"].lower():
+                result = False
+            if result == True:
+                    self.searchResults.append(book)
     
     def getSearchedLibrary(self):
         return self.searchResults
@@ -76,7 +92,7 @@ class libraryController:
         self.millionFlag = False
         self.tempLib = []
         states = ("available", "lend out", "missing", "deleted")
-        for x in range(300000):
+        for x in range(1000000):
             titleLength = random.randrange(5,16)
             authorLength = random.randrange(5,11)
             title = "".join(random.choice(string.ascii_letters) for i in range(titleLength))
@@ -89,7 +105,7 @@ class libraryController:
     
     def extendMillion(self):
         self.database.extendLib(self.tempLib)
-        #self.database.save()
+        self.database.save()
     
     def stopMillion(self, val):
         self.millionFlag = val

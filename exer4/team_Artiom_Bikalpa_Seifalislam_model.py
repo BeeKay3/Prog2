@@ -1,3 +1,10 @@
+# -------------------   Developers   --------------------
+
+# Artiom Triboi        - artiom.triboi@stud.th-deg.de
+# Bikalpa Khachhibhoya - bikalpa.khachhibhoya@stud.th-deg.de
+# Seifalislam Sebak    - seifalislam.sebak@stud.th-deg.de
+
+
 import json
 import random
 import string

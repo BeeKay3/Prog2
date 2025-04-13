@@ -1,10 +1,19 @@
+# -------------------   Developers   --------------------
+
+# Artiom Triboi        - artiom.triboi@stud.th-deg.de
+# Bikalpa Khachhibhoya - bikalpa.khachhibhoya@stud.th-deg.de
+# Seifalislam Sebak    - seifalislam.sebak@stud.th-deg.de
+
+
 import tkinter as tk
 from tkinter import ttk, filedialog
+from PIL import Image, ImageTk
+import pyocr
+import pyocr.builders
 import threading
-import controller
+import team_Artiom_Bikalpa_Seifalislam_controller as controller
 
 class window(tk.Tk):
-
     def __init__(self, title, resolution=None):
         super().__init__()
         self.title(title)
@@ -12,7 +21,7 @@ class window(tk.Tk):
             self.geometry(f'{self.winfo_screenwidth()}x{self.winfo_screenheight()}')
         else:
             self.geometry(resolution)
-        self.resizable(False, False)
+        self.minsize(width=1200, height=720)
 
 class childWindow(tk.Toplevel):
     def __init__(self, parent, title, resolution):
@@ -49,7 +58,7 @@ class mainMenu(ttk.Frame):
         self.yearEntry.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
         
         statusLabel = ttk.Label(self, text='Select status to exclude:')
-        statusLabel.config(font=('Arial', 10))
+        statusLabel.config(font=('Arial', 10, 'bold'))
         statusLabel.grid(row=4, column=0, columnspan=2, sticky=tk.EW, padx=5, pady=5)
         
         self.availableVar = tk.BooleanVar()
@@ -58,24 +67,26 @@ class mainMenu(ttk.Frame):
         self.deletedVar = tk.BooleanVar()
         availableCheckbox = ttk.Checkbutton(self, text='available', variable=self.availableVar)
         availableCheckbox.grid(row=5, column=0, sticky=tk.EW, padx=5, pady=5)
-        lendoutCheckbox = ttk.Checkbutton(self, text='lend out', variable=self.lendoutVar)
-        lendoutCheckbox.grid(row=5, column=1, padx=5, pady=5)
+        lendoutCheckbox = ttk.Checkbutton(self, text='lend out', variable=self.lendoutVar, padding=(60, 0, 0, 0))
+        lendoutCheckbox.grid(row=5, column=1, sticky= tk.EW, padx=5, pady=5)
         missingCheckbox = ttk.Checkbutton(self, text='missing', variable=self.missingVar)
         missingCheckbox.grid(row=6, column=0, sticky=tk.EW, padx=5, pady=5)
-        deletedCheckbox = ttk.Checkbutton(self, text='deleted', variable=self.deletedVar)
-        deletedCheckbox.grid(row=6, column=1, padx=5, pady=5)
+        deletedCheckbox = ttk.Checkbutton(self, text='deleted', variable=self.deletedVar, padding=(60, 0, 0, 0))
+        deletedCheckbox.grid(row=6, column=1, sticky=tk.EW, padx=5, pady=5)
         
-        searchButton = ttk.Button(self, text='Search', command=self.search)
+        searchButton = ttk.Button(self, text='Search (clear search results)', command=self.search)
         searchButton.grid(row=7, column=0, columnspan=2, sticky=tk.EW, padx=5, pady=25)
+        ocrSearchButton = ttk.Button(self, text='OCR Search', command=self.ocrSearch)
+        ocrSearchButton.grid(row=8, column=0, columnspan=2, sticky=tk.EW, padx=5, pady=(0, 25))
         addButton = ttk.Button(self, text='Add Book', command=self.addBook)
-        addButton.grid(row=8, column=0, sticky=tk.EW, padx=5, pady=10)
+        addButton.grid(row=9, column=0, sticky=tk.EW, padx=5, pady=10)
         addmillionButton = ttk.Button(self, text='Add 1 Million Books', command=self.addmillionConfirm)
-        addmillionButton.grid(row=8, column=1, sticky=tk.E, padx=5, pady=10)
+        addmillionButton.grid(row=9, column=1, sticky=tk.E, padx=5, pady=10)
 
     def addBook(self):
-        root = childWindow(self.root, 'add book', '300x300')
+        root = childWindow(self.root, 'Add book', '300x300')
         root.grab_set()
-        front = addBookMenu(root, self.control, self.table)
+        front = addBookMenu(root, self.control, self.table, "", "")
         front.pack(padx=10, pady=10)
         root.wait_window()
 
@@ -84,7 +95,7 @@ class mainMenu(ttk.Frame):
         if value:
             t1 = threading.Thread(target=self.control.addMillion)
             t1.start()
-            text = "Million Entries in Progress\nPress OK to continue\nPress Cancel to stop"
+            text = "Million Entries in Progress\n\nPress OK to continue\n(afterwards, once the process is finished the table will be updated)\n\nPress Cancel to stop"
             confirm = tk.messagebox.askokcancel(title="Adding Million Entries", message=text)
             if not confirm:
                 self.control.stopMillion(True)
@@ -107,6 +118,14 @@ class mainMenu(ttk.Frame):
         self.table.clearTable()
         self.table.updateTableSearch()
 
+    def ocrSearch(self):
+        filetype = [('Image files', '*.png;*.jpg;*.jpeg')]
+        self.filename = filedialog.askopenfilename(title='Open Image File', initialdir='.', filetypes=filetype)
+        if self.filename == () or self.filename == '':
+            tk.messagebox.showerror(title="Error", message="File not selected")
+        else:
+            self.ocrSearchWindow = imageDrawer(self.root, self.control, self.table, self.filename)
+
 
 class libraryDetails(ttk.Frame):
 
@@ -127,16 +146,19 @@ class libraryDetails(ttk.Frame):
         
         self.books = ttk.Treeview(self, columns=('1', '2', '3', '4', '5'), show='headings')
         self.books.heading('1', text='Number')
-        self.books.column('1', width=50)
+        self.books.column('1', width=100, stretch=False, anchor=tk.CENTER)
         self.books.heading('2', text='Title')
+        self.books.column('2', width=200, stretch=True)
         self.books.heading('3', text='Author')
+        self.books.column('3', width=200, stretch=True)
         self.books.heading('4', text='Year')
-        self.books.column('4', width=50)
+        self.books.column('4', width=100, stretch=False, anchor=tk.CENTER)
         self.books.heading('5', text='Status')
-        self.books.column('5', width=100)
+        self.books.column('5', width=150, stretch=False, anchor=tk.CENTER)
         scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.books.yview)
         self.books.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=10)
+        self.books.pack(side=tk.LEFT, anchor=tk.NW, pady=10, expand=True, fill=tk.BOTH)
         
         self.books.bind("<Return>", self.updateItem)
         self.books.bind("<Delete>", self.deleteConfirm)
@@ -160,7 +182,7 @@ class libraryDetails(ttk.Frame):
     
     def updateItem(self, event):
         entry = self.books.selection()[0]
-        root = childWindow(self.root, 'change status', '200x200')
+        root = childWindow(self.root, 'Change status', '200x200')
         root.grab_set()
         front = changeStatusMenu(root, self.control)
         front.pack(padx=10, pady=10)
@@ -188,7 +210,7 @@ class libraryDetails(ttk.Frame):
 
 class addBookMenu(ttk.Frame):
 
-    def __init__(self, parent, control, table):
+    def __init__(self, parent, control, table, title, author):
         super().__init__(parent)
         self.root = parent
         self.control = control
@@ -204,11 +226,13 @@ class addBookMenu(ttk.Frame):
         titleLabel.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self.titleEntry = ttk.Entry(fields, width=25)
         self.titleEntry.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        self.titleEntry.insert(0, title)
         
         authorLabel = ttk.Label(fields, text='Author:')
         authorLabel.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
         self.authorEntry = ttk.Entry(fields, width=25)
         self.authorEntry.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+        self.authorEntry.insert(0, author)
         
         yearLabel = ttk.Label(fields, text='Year:')
         yearLabel.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
@@ -221,14 +245,13 @@ class addBookMenu(ttk.Frame):
         
         self.statusVar = tk.StringVar()
         availableRadiobox = ttk.Radiobutton(buttons, text='available', value='available', variable=self.statusVar)
-        availableRadiobox.grid(row=0, column=0)
         availableRadiobox.grid(row=5, column=0, sticky=tk.EW, padx=5, pady=5)
         lendoutRadiobox = ttk.Radiobutton(buttons, text='lend out', value='lend out', variable=self.statusVar)
-        lendoutRadiobox.grid(row=5, column=1, padx=5, pady=5)
+        lendoutRadiobox.grid(row=5, column=1, sticky=tk.EW, padx=5, pady=5)
         missingRadiobox = ttk.Radiobutton(buttons, text='missing', value='missing', variable=self.statusVar)
         missingRadiobox.grid(row=6, column=0, sticky=tk.EW, padx=5, pady=5)
         deletedRadiobox = ttk.Radiobutton(buttons, text='deleted', value='deleted', variable=self.statusVar)
-        deletedRadiobox.grid(row=6, column=1, padx=5, pady=5)
+        deletedRadiobox.grid(row=6, column=1, sticky=tk.EW, padx=5, pady=5)
         
         fields.pack(side=tk.TOP)
         buttons.pack(side=tk.TOP)
@@ -267,11 +290,11 @@ class changeStatusMenu(ttk.Frame):
         availableRadiobox.grid(row=0, column=0)
         availableRadiobox.grid(row=5, column=0, sticky=tk.EW, padx=5, pady=5)
         lendoutRadiobox = ttk.Radiobutton(buttons, text='lend out', value='lend out', variable=self.statusVar)
-        lendoutRadiobox.grid(row=5, column=1, padx=5, pady=5)
+        lendoutRadiobox.grid(row=5, column=1, sticky=tk.EW, padx=5, pady=5)
         missingRadiobox = ttk.Radiobutton(buttons, text='missing', value='missing', variable=self.statusVar)
         missingRadiobox.grid(row=6, column=0, sticky=tk.EW, padx=5, pady=5)
         deletedRadiobox = ttk.Radiobutton(buttons, text='deleted', value='deleted', variable=self.statusVar)
-        deletedRadiobox.grid(row=6, column=1, padx=5, pady=5)
+        deletedRadiobox.grid(row=6, column=1, sticky=tk.EW, padx=5, pady=5)
         buttons.pack(padx=5, pady=5)
         
         searchButton = ttk.Button(self, text='Confirm', command = self.close)
@@ -292,23 +315,24 @@ class mainView:
     def __init__(self, root):
         self.root = root
         self.control = controller.libraryController()
-        self.control.openJson("lib_default.json")
+        self.control.openJson("team_Artiom_Bikalpa_Seifalislam_lib_default.json")
         
         Menubar = tk.Menu(self.root)
         self.root.config(menu=Menubar)
         fileMenu = tk.Menu(Menubar, tearoff=0)
         fileMenu.add_command(label='Open Existing Library', command=self.openFile)
-        fileMenu.add_command(label='Open a New Library', command=self.newFile)
+        fileMenu.add_command(label='Create New Library', command=self.newFile)
         Menubar.add_cascade(label='File', menu=fileMenu)
         self.LibraryDetails = libraryDetails(root, self.control)
         Menu = mainMenu(root, self.control, self.LibraryDetails)
         Menu.pack(side=tk.LEFT, anchor=tk.NW, padx=10, pady=10)
         self.LibraryDetails.pack(side=tk.LEFT, anchor=tk.NW, padx=25, pady=10, expand=True, fill=tk.BOTH)
 
+
     def openFile(self):
         filetype = [('json files', '*.json')]
         self.filename = filedialog.askopenfilename(title='Open Existing Library', initialdir='.', filetypes=filetype)
-        if self.filename == ():
+        if self.filename == () or self.filename == '':
             tk.messagebox.showerror(title="Error", message="File not selected")
         else:
             result = self.control.openJson(self.filename)
@@ -320,10 +344,10 @@ class mainView:
             self.LibraryDetails.updateTable()
 
     def newFile(self):
-        root = childWindow(self.root, 'create a new library', '400x125')
+        root = childWindow(self.root, 'Create a new library', '400x125')
         root.grab_set()
         name_var = tk.StringVar()
-        nameLabel = ttk.Label(root, text='Name: ')
+        nameLabel = ttk.Label(root, text='File name (no extension needed): ')
         nameLabel.configure(font=('Arial', 15))
         nameLabel.pack(anchor=tk.CENTER, padx=5, pady=5)
         nameEntry = ttk.Entry(root, width=50, textvariable=name_var)
@@ -342,3 +366,100 @@ class mainView:
                 tk.messagebox.showerror(title="Error", message=result)
             self.LibraryDetails.clearTable()
             self.LibraryDetails.updateTable()
+
+
+class imageDrawer:
+    def __init__(self, parent, control, table, image_path):
+        self.root = parent
+        self.control = control
+        self.table = table
+
+        mainw = tk.Toplevel()
+        mainw.title("Image to text - Draw a rectangle on image")
+        
+        self.canvas = tk.Canvas(mainw, width=450, height=600)
+        self.canvas.pack()  
+        self.image = Image.open(image_path).resize((450, 600))
+        self.image_tk = ImageTk.PhotoImage(self.image.resize((450, 600)))
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image_tk)
+
+        self.start_x = None
+        self.start_y = None
+        self.rect = None
+        self.size_label = tk.Label(mainw, text="To recognize the text in image select it by drawing a rectangle", font=("Helvetica", 12))
+        self.size_label.pack(pady=10)
+        self.text_label = tk.Label(mainw, text="", font=("Helvetica", 12))
+        self.text_label.pack(pady=10)
+
+        tools = pyocr.get_available_tools()
+        if len(tools) == 0:
+            raise Exception("No OCR tool found")
+        self.tool = tools[0]
+
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
+
+        mainw.mainloop()
+
+    def on_button_press(self, event):
+        if self.rect:
+            self.canvas.delete(self.rect)
+        
+        self.start_x = event.x
+        self.start_y = event.y
+        self.rect = self.canvas.create_rectangle(self.start_x, self.start_y, self.start_x, self.start_y, outline="red", width=2)
+
+    def on_mouse_drag(self, event):
+        self.canvas.coords(self.rect, self.start_x, self.start_y, event.x, event.y)
+        
+        width = abs(event.x - self.start_x)
+        height = abs(event.y - self.start_y)
+        self.size_label.config(text=f"Dimensions: {width} x {height}")
+
+    def on_button_release(self, event):
+        self.canvas.coords(self.rect, self.start_x, self.start_y, event.x, event.y)
+        self.canvas.itemconfig(self.rect, outline="light green", width=3)
+
+
+        width = abs(event.x - self.start_x)
+        height = abs(event.y - self.start_y)
+        self.size_label.config(text=f"Dimensions: {width} x {height}")
+
+        self.recognize_text_in_rectangle(self.start_x, self.start_y, event.x, event.y, width, height)
+
+    def addBook(self, text, option):
+        root = childWindow(self.root, 'Add book', '300x300')
+        root.grab_set()
+        if option == 1:
+            front = addBookMenu(root, self.control, self.table, text, "")
+        else:
+            front = addBookMenu(root, self.control, self.table, "", text)
+        front.pack(padx=10, pady=10)
+        root.wait_window()
+
+    def recognize_text_in_rectangle(self, x1, y1, x2, y2, width, height):
+        if x1 > x2:
+            x1, x2 = x2, x1
+        if y1 > y2:
+            y1, y2 = y2, y1
+        if width == 0 or height == 0:
+            self.text_label.config(text=f"Recognized Text:\nSelect a valid area!")
+        else:
+            cropped_image = self.image.crop((x1, y1, x2, y2))
+            recognized_text = self.tool.image_to_string(cropped_image, lang='eng', builder=pyocr.builders.TextBuilder())
+            if recognized_text.strip() == "":
+                self.text_label.config(text=f"Recognized Text:\nText not found!")
+            else:
+                self.text_label.config(text=f"Recognized Text: {recognized_text.strip()}") 
+                self.control.ocrSearchBook(recognized_text.strip())
+                self.table.clearTable()
+                self.table.updateTableSearch()
+                if not self.table.books.get_children():
+                    response = tk.messagebox.askyesno("Book not found", "Book now found. Would you like to create a new record?")
+                    if response:
+                        option = tk.messagebox.askyesno("Recognized Text", "Book now found. Is the recognized text the title of the book?")
+                        if option:
+                            self.addBook(recognized_text.strip(), 1)
+                        else:
+                            self.addBook(recognized_text.strip(), 2)
