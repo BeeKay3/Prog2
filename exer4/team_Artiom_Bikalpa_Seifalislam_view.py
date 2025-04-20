@@ -28,6 +28,7 @@ class childWindow(tk.Toplevel):
         super().__init__(takefocus=True)
         self.title(title)
         self.geometry(resolution)
+        self.attributes('-topmost', 1)
         self.resizable(False, False)
 
 class mainMenu(ttk.Frame):
@@ -85,7 +86,6 @@ class mainMenu(ttk.Frame):
 
     def addBook(self):
         root = childWindow(self.root, 'Add book', '300x300')
-        root.grab_set()
         front = addBookMenu(root, self.control, self.table, "", "")
         front.pack(padx=10, pady=10)
         root.wait_window()
@@ -94,14 +94,14 @@ class mainMenu(ttk.Frame):
         value = tk.messagebox.askyesno(title='confirmation', message='Are you sure that you want to add a million entries?')
         if value:
             root = childWindow(self.root, "Status", "500x200")
-            front = millionStatusMenu(root, self.control, self.table)
+            front = millionStatusMenu(root, self.control)
             front.pack(padx=10, pady=10)
             root.wait_window()
             
             self.control.extendMillion()
             self.table.clearTable()
+            tk.messagebox.showinfo(title="Done", message="Process Complete\nPlease wait while the table updates")
             self.table.updateTable()
-            tk.messagebox.showinfo(title="Done", message="Process Complete")
 
     def search(self):
         title = self.titleEntry.get()
@@ -181,7 +181,6 @@ class libraryDetails(ttk.Frame):
     def updateItem(self, event):
         entry = self.books.selection()[0]
         root = childWindow(self.root, 'Change status', '200x200')
-        root.grab_set()
         front = changeStatusMenu(root, self.control)
         front.pack(padx=10, pady=10)
         val = self.books.item(entry)["values"]
@@ -211,6 +210,7 @@ class addBookMenu(ttk.Frame):
     def __init__(self, parent, control, table, title, author):
         super().__init__(parent)
         self.root = parent
+        self.root.grab_set()
         self.control = control
         self.table = table
         fields = ttk.Frame(parent)
@@ -276,6 +276,7 @@ class changeStatusMenu(ttk.Frame):
     def __init__(self, parent, control):
         super().__init__(parent)
         self.root = parent
+        root.grab_set()
         self.control = control
         self.statusVar = tk.StringVar()
         buttons = ttk.Frame(self)
@@ -309,12 +310,12 @@ class changeStatusMenu(ttk.Frame):
 
 class millionStatusMenu(ttk.Frame):
     
-    def __init__(self, parent, control, table):
+    def __init__(self, parent, control):
         super().__init__(parent)
         self.root = parent
         self.control = control
-        self.table = table
         self.root.grab_set()
+        self.root.protocol("WM_DELETE_WINDOW", self.stop)
         
         statusLabel = ttk.Label(self, text="Adding Entries Please Wait")
         statusLabel.config(font=("Arial", 20))
@@ -339,7 +340,7 @@ class millionStatusMenu(ttk.Frame):
             self.root.destroy()
     
     def stop(self):
-        self.control.stopMillion(True)
+        self.control.stopMillion(True)     
 
 class mainView:
 
@@ -461,7 +462,6 @@ class imageDrawer:
 
     def addBook(self, text, option):
         root = childWindow(self.root, 'Add book', '300x300')
-        root.grab_set()
         if option == 1:
             front = addBookMenu(root, self.control, self.table, text, "")
         else:
