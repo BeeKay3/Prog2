@@ -93,17 +93,15 @@ class mainMenu(ttk.Frame):
     def addmillionConfirm(self):
         value = tk.messagebox.askyesno(title='confirmation', message='Are you sure that you want to add a million entries?')
         if value:
-            t1 = threading.Thread(target=self.control.addMillion)
-            t1.start()
-            text = "Million Entries in Progress\n\nPress OK to continue\n(afterwards, once the process is finished the table will be updated)\n\nPress Cancel to stop"
-            confirm = tk.messagebox.askokcancel(title="Adding Million Entries", message=text)
-            if not confirm:
-                self.control.stopMillion(True)
-            else:
-                t1.join()
-                self.control.extendMillion()
-                self.table.clearTable()
-                self.table.updateTable()
+            root = childWindow(self.root, "Status", "500x200")
+            front = millionStatusMenu(root, self.control, self.table)
+            front.pack(padx=10, pady=10)
+            root.wait_window()
+            
+            self.control.extendMillion()
+            self.table.clearTable()
+            self.table.updateTable()
+            tk.messagebox.showinfo(title="Done", message="Process Complete")
 
     def search(self):
         title = self.titleEntry.get()
@@ -309,6 +307,39 @@ class changeStatusMenu(ttk.Frame):
         else:
             self.root.destroy()
 
+class millionStatusMenu(ttk.Frame):
+    
+    def __init__(self, parent, control, table):
+        super().__init__(parent)
+        self.root = parent
+        self.control = control
+        self.table = table
+        self.root.grab_set()
+        
+        statusLabel = ttk.Label(self, text="Adding Entries Please Wait")
+        statusLabel.config(font=("Arial", 20))
+        statusLabel.pack(padx=5, pady=5)
+        
+        self.root.update_idletasks()
+        pb = ttk.Progressbar(self, orient="horizontal", mode="indeterminate", length=self.root.winfo_width())
+        pb.pack(padx=5, pady=20)
+        pb.start()
+        
+        stopButton = ttk.Button(self, text="Cancel", command=self.stop)
+        stopButton.pack(padx=5, pady=5)
+        
+        t1 = threading.Thread(target=self.control.addMillion)
+        t1.start()
+        self.monitor(t1)
+    
+    def monitor(self, thread):
+        if thread.is_alive():
+            self.after(50, lambda: self.monitor(thread))
+        else:
+            self.root.destroy()
+    
+    def stop(self):
+        self.control.stopMillion(True)
 
 class mainView:
 

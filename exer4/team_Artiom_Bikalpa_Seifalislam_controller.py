@@ -101,6 +101,7 @@ class libraryController:
             status = states[random.randrange(0,4)]
             self.tempLib.append({"title": title, "author": author, "year": year, "status": status})
             if self.millionFlag:
+                self.tempLib = []
                 break
     
     def extendMillion(self):
