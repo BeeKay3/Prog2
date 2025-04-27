@@ -276,7 +276,7 @@ class changeStatusMenu(ttk.Frame):
     def __init__(self, parent, control):
         super().__init__(parent)
         self.root = parent
-        root.grab_set()
+        self.root.grab_set()
         self.control = control
         self.statusVar = tk.StringVar()
         buttons = ttk.Frame(self)
