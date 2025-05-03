@@ -1,0 +1,62 @@
+[
+    {
+        "title": "Clean Code",
+        "author": "Robert C. Martin",
+        "year": "2008",
+        "status": "available"
+    },
+    {
+        "title": "Code: The Hidden Language of Computer Hardware and Software",
+        "author": "Charles Petzold",
+        "year": "1999",
+        "status": "lend out"
+    },
+    {
+        "title": "Design Patterns: Elements of Reusable Object-Oriented Software",
+        "author": "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
+        "year": "1994",
+        "status": "missing"
+    },
+    {
+        "title": "Introduction to the Theory of Computation",
+        "author": "Michael Sipser",
+        "year": "1996",
+        "status": "deleted"
+    },
+    {
+        "title": "Python Crash Course",
+        "author": "Eric Matthes",
+        "year": "2015",
+        "status": "available"
+    },
+    {
+        "title": "Refactoring: Improving the Design of Existing Code",
+        "author": "Martin Fowler",
+        "year": "1999",
+        "status": "lend out"
+    },
+    {
+        "title": "Structure and Interpretation of Computer Programs",
+        "author": "Harold Abelson, Gerald Jay Sussman",
+        "year": "1985",
+        "status": "missing"
+    },
+    {
+        "title": "The Art of Computer Programming",
+        "author": "Donald E. Knuth",
+        "year": "1968",
+        "status": "deleted"
+    },
+    {
+        "title": "The Pragmatic Programmer",
+        "author": "Andrew Hunt, David Thomas",
+        "year": "1999",
+        "status": "available"
+    },
+    {
+        "title": "You Don't Know JS",
+        "author": "Kyle Simpson",
+        "year": "2014",
+        "status": "deleted"
+    }
+]
