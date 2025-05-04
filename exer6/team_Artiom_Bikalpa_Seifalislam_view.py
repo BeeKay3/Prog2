@@ -12,6 +12,7 @@ import pyocr
 import pyocr.builders
 import threading
 import team_Artiom_Bikalpa_Seifalislam_controller as controller
+import tracemalloc
 
 class window(tk.Tk):
     def __init__(self, title, resolution=None):
@@ -458,7 +459,9 @@ class imageDrawer:
         height = abs(event.y - self.start_y)
         self.size_label.config(text=f"Dimensions: {width} x {height}")
 
-        self.recognize_text_in_rectangle(self.start_x, self.start_y, event.x, event.y, width, height)
+        result = self.recognize_text_in_rectangle(self.start_x, self.start_y, event.x, event.y, width, height)
+        if result != "":
+            self.text_not_found_handling(result)
 
     def addBook(self, text, option):
         root = childWindow(self.root, 'Add book', '300x300')
@@ -469,7 +472,9 @@ class imageDrawer:
         front.pack(padx=10, pady=10)
         root.wait_window()
 
+    @profile
     def recognize_text_in_rectangle(self, x1, y1, x2, y2, width, height):
+        tracemalloc.start()
         if x1 > x2:
             x1, x2 = x2, x1
         if y1 > y2:
@@ -486,11 +491,22 @@ class imageDrawer:
                 self.control.ocrSearchBook(recognized_text.strip())
                 self.table.clearTable()
                 self.table.updateTableSearch()
-                if not self.table.books.get_children():
-                    response = tk.messagebox.askyesno("Book not found", "Book now found. Would you like to create a new record?")
-                    if response:
-                        option = tk.messagebox.askyesno("Recognized Text", "Book now found. Is the recognized text the title of the book?")
-                        if option:
-                            self.addBook(recognized_text.strip(), 1)
-                        else:
-                            self.addBook(recognized_text.strip(), 2)
+                if self.table.books.get_children():
+                    curr, peak = tracemalloc.get_traced_memory()
+                    print("\nOCR image processing:\nCurrent : {:.4f} MB\nPeak : {:.4f} MB".format(curr/10**6, peak/10**6))
+                    tracemalloc.stop()
+                    return ""
+                else:
+                    curr, peak = tracemalloc.get_traced_memory()
+                    print("\nOCR image processing:\nCurrent : {:.4f} MB\nPeak : {:.4f} MB".format(curr/10**6, peak/10**6))
+                    tracemalloc.stop()
+                    return recognized_text.strip()
+    
+    def text_not_found_handling(self, recognized_text):
+        response = tk.messagebox.askyesno("Book not found", "Book not found. Would you like to create a new record?")
+        if response:
+            option = tk.messagebox.askyesno("Recognized Text", "Is the recognized text the title of the book?")
+            if option:
+                self.addBook(recognized_text, 1)
+            else:
+                self.addBook(recognized_text, 2)
