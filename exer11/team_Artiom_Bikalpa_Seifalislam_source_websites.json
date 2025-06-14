@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Cinema.de",
+        "link": "https://www.cinema.de/kino/news",
+        "html_element": "div",
+        "element_class": "field-node--field-teaser-title field-name-field-teaser-title field-label-hidden field-type-string"
+    },
+    {
+        "name": "Kinocheck.de",
+        "link": "https://kinocheck.de/news",
+        "html_element": "div",
+        "element_class": "title"
+    },
+    {
+        "name": "CNN.com",
+        "link": "https://edition.cnn.com/entertainment/movies",
+        "html_element": "span",
+        "element_class": "container__headline-text"
+    },
+    {
+        "name": "IMDB.com",
+        "link": "https://www.imdb.com/news/movie/?ref_=nv_nw_mv",
+        "html_element": "a",
+        "element_class": "ipc-link ipc-link--base sc-781c1bad-2 jZxGAW"
+    },
+    {
+        "name": "NBCNews.com",
+        "link": "https://www.nbcnews.com/pop-culture/movies",
+        "html_element": "span",
+        "element_class": "tease-card__headline"
+    }
+]

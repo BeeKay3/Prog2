@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>News Scraper UI</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button, input { margin: 5px; padding: 5px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>News Scraper UI</h1>
+
+  <button onclick="scrape()">Scrape News</button>
+  <button onclick="getScrapeResults()">View Scrape Results</button>
+
+  <h3>Search</h3>
+  <input type="text" id="keywords" placeholder="e.g. new, Marvel" size="40">
+  <button onclick="search()">Search</button>
+
+  <button onclick="getSearchResults()">View Last Search</button>
+
+  <h3>Output</h3>
+  <pre id="time">Time of the last update will appear here... </pre>
+  <pre id="output">Results will appear here...</pre>
+
+  <script>
+    const baseURL = 'http://127.0.0.1:8000';
+
+    async function scrape() {
+      const res = await fetch(`${baseURL}/scrape`, { method: 'POST' });
+      const data = await res.json();
+      show(data);
+    }
+
+    async function search() {
+      const input = document.getElementById('keywords').value;
+      const keywords = input.split(',').map(k => k.trim()).filter(Boolean);
+      const params = new URLSearchParams();
+      keywords.forEach(k => params.append('keywords', k));
+
+      const res = await fetch(`${baseURL}/search?${params.toString()}`, { method: 'POST' });
+      const data = await res.json();
+      show(data);
+    }
+
+    async function getScrapeResults() {
+      const res = await fetch(`${baseURL}/scrape-results`);
+      const data = await res.json();
+      show(data);
+    }
+
+    async function getSearchResults() {
+      const res = await fetch(`${baseURL}/search-results`);
+      const data = await res.json();
+      show(data);
+    }
+
+    function show(data) {
+      document.getElementById('time').textContent = "Time of the last update: " + data.timestamp;
+      document.getElementById('output').textContent = data.results;
+    }
+  </script>
+</body>
+</html>
